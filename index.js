@@ -2,6 +2,28 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const mongoose = require("mongoose");
+require("dotenv").config({ path: "../.env" });
+
+//connect to mongodb
+const url = process.env.MONGODB_URI;
+console.log("connecting to", url);
+mongoose.set("strictQuery", false);
+mongoose.connect(url);
+//person schema
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+});
+const Person = mongoose.model("Person", personSchema);
+//transform person schema
+personSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
 
 //implement morgan
 const morgan = require("morgan");
@@ -45,7 +67,9 @@ let persons = [
 ];
 //static files
 app.get("/api/persons", (req, res) => {
-  res.send(persons);
+  Person.find({}).then((persons) => {
+    res.json(persons);
+  });
 });
 
 //info page
