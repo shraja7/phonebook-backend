@@ -11,7 +11,13 @@ app.use(
 );
 
 //middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://phonebook-req4.onrender.com",
+    optionsSuccessStatus: 200,
+  })
+);
+
 app.use(express.json());
 app.use(express.static("build"));
 
