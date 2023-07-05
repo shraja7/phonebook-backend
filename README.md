@@ -39,6 +39,11 @@ The application uses the Morgan middleware to log information about each HTTP re
 
 The application includes basic error handling for adding new contacts. It checks for missing name or number fields and ensures that each contact's name is unique. If an error occurs, the server responds with an appropriate error status code and a JSON error message.
 
+## Deployment
+
+This application was deployed on render and can be found here:
+https://phonebook-req4.onrender.com/
+
 ## License
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
