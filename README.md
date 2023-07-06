@@ -6,8 +6,12 @@ This is a simple backend application for a phonebook. It provides endpoints to m
 
 - Node.js
 - Express.js
+- Mongoose (MongoDB object modeling)
+- MongoDB (NoSQL database)
+- React (Frontend framework)
 - CORS (Cross-Origin Resource Sharing)
 - Morgan (HTTP request logger middleware)
+- Thunder Client (API testing tool)
 
 ## Setup
 
