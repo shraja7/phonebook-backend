@@ -47,9 +47,14 @@ let persons = [
 ];
 //static files
 app.get("/api/persons", (req, res) => {
-  Person.find({}).then((persons) => {
-    res.json(persons);
-  });
+  Person.find({})
+    .then((persons) => {
+      res.status(200).json(persons);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({ message: "Internal server error" });
+    });
 });
 
 //info page
@@ -65,14 +70,14 @@ app.get("/api/persons/:id", (req, res) => {
   Person.findById(id)
     .then((person) => {
       if (person) {
-        res.json(person);
+        res.status(200).json(person);
       } else {
-        res.status(404).end();
+        res.status(404).json({ message: "Contact not found" });
       }
     })
     .catch((error) => {
       console.log(error);
-      res.status(500).end();
+      res.status(500).json({ message: "Internal server error" });
     });
 });
 
@@ -106,9 +111,15 @@ app.post("/api/persons", (req, res) => {
     name: body.name,
     number: body.number,
   });
-  person.save().then((savedPerson) => {
-    res.json(savedPerson);
-  });
+  person
+    .save()
+    .then((savedPerson) => {
+      res.status(201).json(savedPerson);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({ message: "Failed to save the person" });
+    });
 });
 
 //listen to port
