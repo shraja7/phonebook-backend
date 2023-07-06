@@ -1,29 +1,9 @@
 //setup express server
+const Person = require("./models/person");
+
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const mongoose = require("mongoose");
-require("dotenv").config({ path: "../.env" });
-
-//connect to mongodb
-const url = process.env.MONGODB_URI;
-console.log("connecting to", url);
-mongoose.set("strictQuery", false);
-mongoose.connect(url);
-//person schema
-const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-});
-const Person = mongoose.model("Person", personSchema);
-//transform person schema
-personSchema.set("toJSON", {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-  },
-});
 
 //implement morgan
 const morgan = require("morgan");
@@ -79,25 +59,42 @@ app.get("/info", (req, res) => {
     <p>${date}</p>`);
 });
 
-//route to get a single contact
+//route to get a single contact using Person model with error handling
 app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find((person) => person.id === id);
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).end();
-  }
+  const id = req.params.id;
+  Person.findById(id)
+    .then((person) => {
+      if (person) {
+        res.json(person);
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).end();
+    });
 });
 
-//route to delete a contact
+//route to delete a contact using Person model with error handling
+//route to delete a contact using Person model with error handling
 app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  persons = persons.filter((person) => person.id !== id);
-  res.status(204).end();
+  const id = req.params.id;
+  Person.findByIdAndRemove(id)
+    .then((result) => {
+      if (result) {
+        res.status(204).send("Deleted successfully");
+      } else {
+        res.status(404).send("Contact not found");
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).send("Internal Server Error");
+    });
 });
 
-//route to add a contact
+//route to add a contact using Person model with error handling
 app.post("/api/persons", (req, res) => {
   const body = req.body;
   if (!body.name || !body.number) {
@@ -105,21 +102,13 @@ app.post("/api/persons", (req, res) => {
       error: "name or number missing",
     });
   }
-  const nameExists = persons.find(
-    (p) => p.name.trim().toLowerCase() === body.name.trim().toLowerCase()
-  );
-  if (nameExists) {
-    return res.status(400).json({
-      error: "name must be unique",
-    });
-  }
-  const person = {
-    id: Math.floor(Math.random() * 1000),
+  const person = new Person({
     name: body.name,
     number: body.number,
-  };
-  persons = persons.concat(person);
-  res.json(person);
+  });
+  person.save().then((savedPerson) => {
+    res.json(savedPerson);
+  });
 });
 
 //listen to port
