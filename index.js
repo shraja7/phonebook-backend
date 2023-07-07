@@ -122,6 +122,31 @@ app.post("/api/persons", (req, res) => {
     });
 });
 
+//route for updating a contact using Person model with error handling
+// route for updating a contact using Person model with error handling
+// route for updating a contact using Person model with error handling
+app.put("/api/persons/:id", (req, res) => {
+  const id = req.params.id;
+  const body = req.body;
+  const updatedPerson = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(id, updatedPerson, { new: true })
+    .then((result) => {
+      if (result) {
+        res.json(result);
+      } else {
+        res.status(404).json({ message: "Contact not found" });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({ message: "Failed to update the contact" });
+    });
+});
+
 //listen to port
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
